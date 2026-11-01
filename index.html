@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#020908" />
+    <meta
+      name="description"
+      content="使用手掌位置与挥动速度，驾驭东方神话粒子龙卷风。"
+    />
+    <title>御风 · 粒子龙卷风互动体验</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="experience">
+      <canvas id="stormCanvas" aria-label="东方神话粒子龙卷风互动舞台"></canvas>
+
+      <div class="ambient-grid" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="御风互动体验">
+          <span class="brand-seal">风</span>
+          <span class="brand-copy">
+            <strong>御风</strong>
+            <small>WIELD THE STORM</small>
+          </span>
+        </a>
+
+        <div class="top-actions">
+          <button class="glass-button camera-toggle" id="cameraToggle" type="button">
+            <span class="button-dot" aria-hidden="true"></span>
+            <span id="cameraToggleText">开启摄像头</span>
+          </button>
+          <button
+            class="glass-button icon-button sound-toggle"
+            id="soundToggle"
+            type="button"
+            aria-label="关闭风声音效"
+            aria-pressed="true"
+            title="风声音效"
+          >
+            <span id="soundIcon" aria-hidden="true">♪</span>
+          </button>
+          <button class="glass-button icon-button" id="helpButton" type="button" aria-label="查看玩法">
+            ?
+          </button>
+        </div>
+      </header>
+
+      <section class="hero-copy" aria-labelledby="pageTitle">
+        <p class="eyebrow">AN INTERACTIVE PARTICLE RITUAL</p>
+        <h1 id="pageTitle">掌心所至，<br /><em>风暴随行。</em></h1>
+        <p class="lede">伸出一只或两只手引导风眼；双手分裂风暴，靠近停留可合体，握拳低于 15% 召唤巨型旋涡暴风雨。</p>
+      </section>
+
+      <section class="telemetry" aria-label="实时交互数据">
+        <div class="speed-card">
+          <span class="metric-label">挥动速度</span>
+          <div class="speed-value"><strong id="speedValue">0</strong><small>%</small></div>
+          <div class="meter" aria-hidden="true"><i id="speedMeter"></i></div>
+        </div>
+        <div class="mode-card">
+          <div class="metric-topline">
+            <span class="metric-label">掌心开合</span>
+            <span class="weather-badge" id="weatherStatus" data-weather="calm">平静</span>
+          </div>
+          <div class="openness-value"><strong id="opennessValue">—</strong><small>%</small></div>
+          <span class="mode-hint"><b id="controlMode">指针模式</b> · <span id="modeHint">速度控制大小</span></span>
+        </div>
+      </section>
+
+      <aside class="camera-panel" id="cameraPanel" aria-label="摄像头识别预览">
+        <div class="camera-heading">
+          <span class="live-pill"><i aria-hidden="true"></i> LIVE</span>
+          <div class="camera-heading-actions">
+            <span id="trackingLabel">等待开启</span>
+            <button
+              class="live-size-toggle"
+              id="liveSizeToggle"
+              type="button"
+              aria-label="放大 LIVE 预览"
+              aria-pressed="false"
+              title="放大 LIVE 预览"
+            >↗</button>
+          </div>
+        </div>
+        <div class="camera-viewport">
+          <video id="cameraVideo" autoplay playsinline muted></video>
+          <canvas id="landmarkCanvas" aria-hidden="true"></canvas>
+          <div class="camera-placeholder" id="cameraPlaceholder">
+            <span class="palm-icon" aria-hidden="true">✦</span>
+            <small>手势视野</small>
+          </div>
+          <div class="scan-line" aria-hidden="true"></div>
+        </div>
+        <p class="privacy-note">画面仅在本机处理，不会上传</p>
+      </aside>
+
+      <div class="interaction-hint" id="interactionHint">
+        <span class="gesture-orbit" aria-hidden="true"><i></i></span>
+        <p><strong>试着挥动手掌</strong><small>也可以使用鼠标或触控</small></p>
+      </div>
+
+      <div class="status-toast" id="statusToast" role="status" aria-live="polite"></div>
+
+      <div class="intro-overlay is-visible" id="introOverlay">
+        <div class="intro-card">
+          <span class="intro-sigil" aria-hidden="true">御</span>
+          <p class="eyebrow">THE STORM AWAITS</p>
+          <h2>以掌为引，唤醒风暴</h2>
+          <p>
+            页面可同时跟随两只手。双手出现时风暴分裂为两个龙卷风，双手靠近并停留可合体，张开五指控制大小，握拳低于 15% 召唤全屏巨型旋涡暴风雨。
+          </p>
+          <button class="primary-button" id="startButton" type="button">
+            <span>开启手势控制</span><i aria-hidden="true">→</i>
+          </button>
+          <button class="text-link" id="pointerOnlyButton" type="button">先用鼠标 / 触控体验</button>
+          <small class="secure-note">摄像头需要通过 localhost 或 HTTPS 访问</small>
+        </div>
+      </div>
+
+      <div class="help-drawer" id="helpDrawer" aria-hidden="true">
+        <button class="close-button" id="closeHelpButton" type="button" aria-label="关闭玩法">×</button>
+        <p class="eyebrow">HOW TO WIELD</p>
+        <h2>驾驭风暴</h2>
+        <ol>
+          <li><span>壹</span><p><strong>伸出控制手</strong><small>一只手控一个风眼，双手可分裂风暴</small></p></li>
+          <li><span>贰</span><p><strong>开合五指</strong><small>握拳收拢，张开手掌放大风暴</small></p></li>
+          <li><span>叁</span><p><strong>合拢双手</strong><small>靠近停留，两个风眼合成特殊龙卷风</small></p></li>
+          <li><span>肆</span><p><strong>L 形手势</strong><small>拇指与食指伸出，切换蓝色 / 青绿色调</small></p></li>
+          <li><span>伍</span><p><strong>握拳聚能</strong><small>开合低于 15% 触发巨型旋涡雷雨</small></p></li>
+        </ol>
+        <p class="fallback-copy">没有摄像头？按住鼠标拖动或直接在触屏上划动即可。</p>
+      </div>
+
+      <footer>
+        <span>LOCAL VISION · PARTICLE CANVAS</span>
+        <span class="coordinates" id="coordinates">X 50 · Y 55</span>
+      </footer>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
